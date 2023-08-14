@@ -18,28 +18,37 @@ export default class OrderRepository implements OrderRepositoryInterface {
           quantity: item.quantity,
         })),
       },
-     {
-      where:{
-          id:entity.id,
+      {
+        where: {
+          id: entity.id,
+        },
       }
-     }
-     );
+    );
   }
   async find(id: string): Promise<Order> {
-    const order = await OrderModel.findOne({where:{id}});
-    const list : OrderItem[] = [];
-    order.items?.map((item) => {
-      let i = new OrderItem(item.id, item.name,item.price,item.product_id,item.quantity);
+    const order = await OrderModel.findOne({
+      where: { id },
+      include: ["items"],
+    });
+    const list: OrderItem[] = [];
+    order.items.map((item) => {
+      let i = new OrderItem(
+        item.id,
+        item.name,
+        item.price,
+        item.product_id,
+        item.quantity
+      );
       list.push(i);
-    })
-    return new Order(order.id,order.customer_id,list);
+    });
+    return new Order(order.id, order.customer_id, list);
   }
 
   async findAll(): Promise<Order[]> {
     const ordersModel = await OrderModel.findAll({
       include: [OrderItemModel], // Inclua os itens do pedido na consulta
     });
-  
+
     const orders: Order[] = ordersModel.map((orderModel) => {
       const orderItems: OrderItem[] = orderModel.items.map((item) => {
         return new OrderItem(
@@ -50,33 +59,30 @@ export default class OrderRepository implements OrderRepositoryInterface {
           item.quantity
         );
       });
-  
+
       return new Order(orderModel.id, orderModel.customer_id, orderItems);
     });
-  
+
     return orders;
   }
-  
-  
+
   async create(entity: Order): Promise<void> {
-    await OrderModel.create({
-      id: entity.id,
-      customer_id: entity.customerId,
-      total: entity.total(),
-      items: entity.items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        product_id: item.productId,
-        quantity: item.quantity,
-      })),
-    },
-    {
-      include:[{model:OrderItemModel}],
-    }
+    await OrderModel.create(
+      {
+        id: entity.id,
+        customer_id: entity.customerId,
+        total: entity.total(),
+        items: entity.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          product_id: item.productId,
+          quantity: item.quantity,
+        })),
+      },
+      {
+        include: [{ model: OrderItemModel }],
+      }
     );
   }
 }
-
-
-

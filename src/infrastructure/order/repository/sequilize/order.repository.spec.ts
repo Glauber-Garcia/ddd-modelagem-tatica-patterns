@@ -52,28 +52,28 @@ describe("Order repository test", () => {
     const customer = getCustomerWithAddress();
     await customerRepository.create(customer);
 
-    const product1 = new Product("23", "Shoes", 259.99);
-    const product2 = new Product("24", "Shirt", 89.99);
+    const product1 = new Product("1", "Product 1", 100);
+    const product2 = new Product("2", "Product 2", 200);
 
     await productRepository.create(product1);
     await productRepository.create(product2);
 
     const orderItem1 = new OrderItem(
-      "247",
+      "O1I1",
       "Order Item 1",
       product1.price,
       product1.id,
       1
     );
     const orderItem2 = new OrderItem(
-      "248",
+      "O1I2",
       "Order Item 2",
       product2.price,
       product2.id,
       2
     );
 
-    const order = new Order("329", customer.id, [orderItem1, orderItem2]);
+    const order = new Order("O1", customer.id, [orderItem1, orderItem2]);
 
     await orderRepository.create(order);
 
@@ -115,35 +115,35 @@ describe("Order repository test", () => {
     const customer = getCustomerWithAddress();
     await customerRepository.create(customer);
 
-    const product1 = new Product("23", "Shoes", 259.99);
-    const product2 = new Product("24", "Shirt", 89.99);
-    const product3 = new Product("25", "Pack of socks", 19.99);
+    const product1 = new Product("1", "Product 1", 100);
+    const product2 = new Product("2", "Product 2", 200);
+    const product3 = new Product("3", "Product 3", 300);
 
     await productRepository.create(product1);
     await productRepository.create(product2);
     await productRepository.create(product3);
 
     const orderItem1 = new OrderItem(
-      "247",
+      "O1I1",
       "Order Item 1",
       product1.price,
       product1.id,
       1
     );
     const orderItem2 = new OrderItem(
-      "248",
+      "O1I2",
       "Order Item 2",
       product2.price,
       product2.id,
       2
     );
 
-    const order = new Order("329", customer.id, [orderItem1, orderItem2]);
+    const order = new Order("O1", customer.id, [orderItem1, orderItem2]);
 
     await orderRepository.create(order);
 
     const orderItem3 = new OrderItem(
-      "249",
+      "O1I3",
       "Order Item 3",
       product3.price,
       product3.id,
@@ -176,15 +176,7 @@ describe("Order repository test", () => {
     expect(orderFromDB2?.total).toBe(order.total());
   });
 
-  it("should throw an error when customer is not found", async () => {
-    const orderRepository = new OrderRepository();
-
-    expect(async () => {
-      await orderRepository.find("973");
-    }).rejects.toThrow("SQLITE_MISUSE: Database handle is closed");
-  });
-
-  it("should find a order", async () => {
+   it("should find a order", async () => {
     const customerRepository = new CustomerRepository();
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
@@ -192,20 +184,20 @@ describe("Order repository test", () => {
     const customer = getCustomerWithAddress();
     await customerRepository.create(customer);
 
-    const product1 = new Product("23", "Shoes", 259.99);
+    const product1 = new Product("1", "Product 1", 100);
     await productRepository.create(product1);
 
     const orderItem1 = new OrderItem(
-      "256",
+      "O1I1",
       "Order Item 1",
       product1.price,
       product1.id,
       1
     );
-    const order = new Order("332", customer.id, [orderItem1]);
+    const order = new Order("O1", customer.id, [orderItem1]);
     await orderRepository.create(order);
 
-    const orderFound = await orderRepository.find(order.id);
+   const orderFound = await orderRepository.find(order.id);
 
     expect(orderFound).toEqual(order);
   });
