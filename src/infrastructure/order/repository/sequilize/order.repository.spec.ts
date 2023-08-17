@@ -142,6 +142,25 @@ describe("Order repository test", () => {
 
     await orderRepository.create(order);
 
+    await sequelize.transaction(async (t) => {
+      OrderItemModel.destroy({
+        where: { order_id: order.id },
+      });
+      const items = order.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        product_id: item.productId,
+        quantity: item.quantity,
+        order_id: order.id,
+      }));
+      await OrderItemModel.bulkCreate(items, { transaction: t });
+      await OrderModel.update(
+        { total: order.total() },
+        { where: { id: order.id }, transaction: t }
+      );
+    });
+
     const orderItem3 = new OrderItem(
       "O1I3",
       "Order Item 3",
@@ -176,7 +195,7 @@ describe("Order repository test", () => {
     expect(orderFromDB2?.total).toBe(order.total());
   });
 
-   it("should find a order", async () => {
+  it("should find a order", async () => {
     const customerRepository = new CustomerRepository();
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
@@ -197,7 +216,7 @@ describe("Order repository test", () => {
     const order = new Order("O1", customer.id, [orderItem1]);
     await orderRepository.create(order);
 
-   const orderFound = await orderRepository.find(order.id);
+    const orderFound = await orderRepository.find(order.id);
 
     expect(orderFound).toEqual(order);
   });

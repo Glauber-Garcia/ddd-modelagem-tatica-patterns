@@ -3,7 +3,7 @@ import EventHandlerInterface from "../../../@shared/event/event-handler.interfac
 import { CustomerChangedAddressEvent } from "../customer-changed-address.event";
 import CustomerCreatedEvent from "../customer-created.event";
 
-export default class SendToLogWhenIsChangedAdress implements EventHandlerInterface<CustomerCreatedEvent>{
+export default class SendToLogWhenIsChangedAdress implements EventHandlerInterface<CustomerChangedAddressEvent>{
 	handle(event: CustomerChangedAddressEvent): void {
 		const { id, name, oldAddress, newAddress } = event.eventData.customer;
 
