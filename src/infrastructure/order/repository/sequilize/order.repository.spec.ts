@@ -115,59 +115,22 @@ describe("Order repository test", () => {
     const customer = getCustomerWithAddress();
     await customerRepository.create(customer);
 
-    const product1 = new Product("1", "Product 1", 100);
-    const product2 = new Product("2", "Product 2", 200);
-    const product3 = new Product("3", "Product 3", 300);
+    const product1 = new Product("P1", "Product 1", 100);
+    const product2 = new Product("P2", "Product 2", 200);
+    const product3 = new Product("P3", "Product 3", 300);
 
     await productRepository.create(product1);
     await productRepository.create(product2);
     await productRepository.create(product3);
 
-    const orderItem1 = new OrderItem(
-      "O1I1",
-      "Order Item 1",
-      product1.price,
-      product1.id,
-      1
-    );
-    const orderItem2 = new OrderItem(
-      "O1I2",
-      "Order Item 2",
-      product2.price,
-      product2.id,
-      2
-    );
+    const orderItem1 = new OrderItem("OI1", "Order Item 1", product1.price, product1.id, 1);
+    const orderItem2 = new OrderItem("OI2", "Order Item 2", product2.price, product2.id, 2);
 
     const order = new Order("O1", customer.id, [orderItem1, orderItem2]);
 
     await orderRepository.create(order);
 
-    await sequelize.transaction(async (t) => {
-      OrderItemModel.destroy({
-        where: { order_id: order.id },
-      });
-      const items = order.items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        product_id: item.productId,
-        quantity: item.quantity,
-        order_id: order.id,
-      }));
-      await OrderItemModel.bulkCreate(items, { transaction: t });
-      await OrderModel.update(
-        { total: order.total() },
-        { where: { id: order.id }, transaction: t }
-      );
-    });
-
-    const orderItem3 = new OrderItem(
-      "O1I3",
-      "Order Item 3",
-      product3.price,
-      product3.id,
-      1
-    );
+    const orderItem3 = new OrderItem("OI3", "Order Item 3", product3.price, product3.id, 3);
 
     order.addItem(orderItem3);
 
@@ -178,7 +141,7 @@ describe("Order repository test", () => {
       include: ["items"],
     });
 
-    expect(orderFromDB?.items.length).toBe(2);
+    expect(orderFromDB?.items.length).toBe(3);
     expect(orderFromDB?.total).toBe(order.total());
 
     order.removeItem(orderItem1.id);
@@ -191,7 +154,7 @@ describe("Order repository test", () => {
       include: ["items"],
     });
 
-    expect(orderFromDB2?.items.length).toBe(2);
+    expect(orderFromDB2?.items.length).toBe(1);
     expect(orderFromDB2?.total).toBe(order.total());
   });
 
