@@ -36,8 +36,8 @@ describe("Order repository test", () => {
     await sequelize.close();
   });
 
-  function getCustomerWithAddress() {
-    const customer = new Customer("123", "John Doe");
+  function getCustomerWithAddress(id: string,name:string) {
+    const customer = new Customer(id, name);
     const address = new Address("Wilkie Way", 4290, "94306", "Palo Alto, CA");
     customer.changeAddress(address);
 
@@ -49,7 +49,7 @@ describe("Order repository test", () => {
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
 
-    const customer = getCustomerWithAddress();
+    const customer = getCustomerWithAddress("C1","Customer 1");
     await customerRepository.create(customer);
 
     const product1 = new Product("1", "Product 1", 100);
@@ -107,12 +107,12 @@ describe("Order repository test", () => {
     });
   });
 
-  it("should update items and the total of an order", async () => {
+  it("should update customer of an order", async () => {
     const customerRepository = new CustomerRepository();
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
 
-    const customer = getCustomerWithAddress();
+    const customer = getCustomerWithAddress("C1","Customer 1");
     await customerRepository.create(customer);
 
     const product1 = new Product("P1", "Product 1", 100);
@@ -130,9 +130,10 @@ describe("Order repository test", () => {
 
     await orderRepository.create(order);
 
-    const orderItem3 = new OrderItem("OI3", "Order Item 3", product3.price, product3.id, 3);
+    const customer2 = getCustomerWithAddress("C2","Customer 2");
+    await customerRepository.create(customer2);
 
-    order.addItem(orderItem3);
+    order.changeCustomerId(customer2.id);
 
     await orderRepository.update(order);
 
@@ -141,7 +142,7 @@ describe("Order repository test", () => {
       include: ["items"],
     });
 
-    expect(orderFromDB?.items.length).toBe(3);
+    expect(orderFromDB?.items.length).toBe(2);
     expect(orderFromDB?.total).toBe(order.total());
 
     order.removeItem(orderItem1.id);
@@ -154,7 +155,7 @@ describe("Order repository test", () => {
       include: ["items"],
     });
 
-    expect(orderFromDB2?.items.length).toBe(1);
+    expect(orderFromDB2?.items.length).toBe(2);
     expect(orderFromDB2?.total).toBe(order.total());
   });
 
@@ -163,7 +164,7 @@ describe("Order repository test", () => {
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
 
-    const customer = getCustomerWithAddress();
+    const customer = getCustomerWithAddress("C1","Customer 1");
     await customerRepository.create(customer);
 
     const product1 = new Product("1", "Product 1", 100);
@@ -189,7 +190,7 @@ describe("Order repository test", () => {
     const productRepository = new ProductRepository();
     const orderRepository = new OrderRepository();
 
-    const customer = getCustomerWithAddress();
+    const customer = getCustomerWithAddress("C1","Customer 1");
     await customerRepository.create(customer);
 
     const product1 = new Product("23", "Shoes", 259.99);

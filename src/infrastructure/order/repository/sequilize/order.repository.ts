@@ -5,35 +5,35 @@ import OrderItemModel from "./order-item.model";
 import OrderModel from "./order.model";
 
 function orderItemToDatabase(orderItem: OrderItem) {
-	return {
-		id: orderItem.id,
-		productId: orderItem.productId,
-		name: orderItem.name,
-		price: orderItem.price,
-		quantity: orderItem.quantity,
-	};
+  return {
+    id: orderItem.id,
+    productId: orderItem.productId,
+    name: orderItem.name,
+    price: orderItem.price,
+    quantity: orderItem.quantity,
+  };
 }
 
 export default class OrderRepository implements OrderRepositoryInterface {
 	async update(entity: Order): Promise<void> {
-		const updatedItems = entity.items.map(orderItemToDatabase);
-		const itemsOnDB = await OrderItemModel.findAll({ where: { orderId: entity.id } });
+		// const updatedItems = entity.items.map(orderItemToDatabase);
+		// const itemsOnDB = await OrderItemModel.findAll({ where: { orderId: entity.id } });
 
-		for (const updatedItem of updatedItems) {
-			const itemExistsOnDB = itemsOnDB.find((itemOnDB) => itemOnDB.id === updatedItem.id);
+		// for (const updatedItem of updatedItems) {
+		// 	const itemExistsOnDB = itemsOnDB.find((itemOnDB) => itemOnDB.id === updatedItem.id);
 
-			if (!itemExistsOnDB) {
-				await OrderItemModel.create({ ...updatedItem, orderId: entity.id });
-			}
-		}
+		// 	if (!itemExistsOnDB) {
+		// 		await OrderItemModel.create({ ...updatedItem, orderId: entity.id });
+		// 	}
+		// }
 
-		for (const itemOnDB of itemsOnDB) {
-			const itemExistsOnUpdatedItems = updatedItems.find((updatedItem) => updatedItem.id === itemOnDB.id);
+		// for (const itemOnDB of itemsOnDB) {
+		// 	const itemExistsOnUpdatedItems = updatedItems.find((updatedItem) => updatedItem.id === itemOnDB.id);
 
-			if (!itemExistsOnUpdatedItems) {
-				await OrderItemModel.destroy({ where: { id: itemOnDB.id } });
-			}
-		}
+		// 	if (!itemExistsOnUpdatedItems) {
+		// 		await OrderItemModel.destroy({ where: { id: itemOnDB.id } });
+		// 	}
+		// }
 
 		await OrderModel.update({ total: entity.total() }, { where: { id: entity.id } });
 	}
